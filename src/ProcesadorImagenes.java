@@ -51,21 +51,15 @@ public class ProcesadorImagenes {
         // Crear imagen de salida
         BufferedImage imagenResultado = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_RGB);
 
-        // Recorrer la imagen píxel por píxel (de izquierda a derecha, arriba a abajo)
+        // Recorrer la imagen píxel por píxel
         for (int y = 0; y < alto; y++) {
             for (int x = 0; x < ancho; x++) {
 
-                // Obtener el píxel RGB
-                int rgb = imagenOriginal.getRGB(x, y);
+                // Aplicar EROSIÓN (usar radio = 1 para ventana 3x3)
+                int nuevoRGB = aplicarErosion(imagenOriginal, x, y, 1);
 
-                // Extraer componentes R, G, B
-                int r = (rgb >> 16) & 0xFF;
-                int g = (rgb >> 8) & 0xFF;
-                int b = rgb & 0xFF;
-
-                // AQUÍ IRÁ LA LÓGICA DE EROSIÓN O DILATACIÓN
-                // Por ahora solo copiamos el píxel (placeholder)
-                int nuevoRGB = (r << 16) | (g << 8) | b;
+                // O aplicar DILATACIÓN (descomenta para usar dilatación)
+                // int nuevoRGB = aplicarDilatacion(imagenOriginal, x, y, 1);
 
                 imagenResultado.setRGB(x, y, nuevoRGB);
             }
@@ -137,30 +131,23 @@ public class ProcesadorImagenes {
                     // Procesar la franja asignada a este hilo
                     for (int y = filaInicio; y < filaFin; y++) {
                         for (int x = 0; x < ancho; x++) {
-
-                            // Obtener el píxel RGB
-                            int rgb = imagenOriginal.getRGB(x, y);
-
-                            // Extraer componentes R, G, B
-                            int r = (rgb >> 16) & 0xFF;
-                            int g = (rgb >> 8) & 0xFF;
-                            int b = rgb & 0xFF;
-
-                            // AQUÍ IRÁ LA LÓGICA DE EROSIÓN O DILATACIÓN
-                            // Por ahora solo copiamos el píxel (placeholder)
-                            int nuevoRGB = (r << 16) | (g << 8) | b;
-
-                            imagenResultado.setRGB(x, y, nuevoRGB);
-                        }
-                    }
-
-                    System.out.println("Hilo " + hiloNum + " completado");
-
-                } finally {
-                    latch.countDown();
-                }
-            });
+                
+                // Aplicar EROSIÓN
+                int nuevoRGB = aplicarErosion(imagenOriginal, x, y, 1);
+                
+                // O aplicar DILATACIÓN (descomenta para usar dilatación)
+                // int nuevoRGB = aplicarDilatacion(imagenOriginal, x, y, 1);
+                
+                imagenResultado.setRGB(x, y, nuevoRGB);
+            }
         }
+
+        System.out.println("Hilo " + hiloNum + " completado");
+
+    } finally {
+        latch.countDown();
+    }
+});
 
         // Esperar a que todos los hilos terminen
         try {
@@ -249,20 +236,83 @@ public class ProcesadorImagenes {
         return true;
     }
 
+    /**
+     * Aplica erosión a un píxel (encuentra el mínimo en la vecindad)
+     */
+    private static int aplicarErosion(BufferedImage imagen, int x, int y, int radio) {
+        int minR = 255, minG = 255, minB = 255;
+
+        for (int dy = -radio; dy <= radio; dy++) {
+            for (int dx = -radio; dx <= radio; dx++) {
+                int nx = x + dx;
+                int ny = y + dy;
+
+                // Verificar límites
+                if (nx >= 0 && nx < imagen.getWidth() && ny >= 0 && ny < imagen.getHeight()) {
+                    int rgb = imagen.getRGB(nx, ny);
+                    int r = (rgb >> 16) & 0xFF;
+                    int g = (rgb >> 8) & 0xFF;
+                    int b = rgb & 0xFF;
+
+                    minR = Math.min(minR, r);
+                    minG = Math.min(minG, g);
+                    minB = Math.min(minB, b);
+                }
+            }
+        }
+
+        return (minR << 16) | (minG << 8) | minB;
+    }
+
+    /**
+     * Aplica dilatación a un píxel (encuentra el máximo en la vecindad)
+     */
+    private static int aplicarDilatacion(BufferedImage imagen, int x, int y, int radio) {
+        int maxR = 0, maxG = 0, maxB = 0;
+
+        for (int dy = -radio; dy <= radio; dy++) {
+            for (int dx = -radio; dx <= radio; dx++) {
+                int nx = x + dx;
+                int ny = y + dy;
+
+                // Verificar límites
+                if (nx >= 0 && nx < imagen.getWidth() && ny >= 0 && ny < imagen.getHeight()) {
+                    int rgb = imagen.getRGB(nx, ny);
+                    int r = (rgb >> 16) & 0xFF;
+                    int g = (rgb >> 8) & 0xFF;
+                    int b = rgb & 0xFF;
+
+                    maxR = Math.max(maxR, r);
+                    maxG = Math.max(maxG, g);
+                    maxB = Math.max(maxB, b);
+                }
+            }
+        }
+
+        return (maxR << 16) | (maxG << 8) | maxB;
+    }
+
     public static void main(String[] args) {
         System.out.println("=== Procesador de Imágenes Secuencial vs Paralelo ===");
         System.out.println("Proyecto 1 - Sistemas Distribuidos");
         System.out.println("Universidad de Talca\n");
 
-        // Ruta de la imagen a procesar (puedes cambiarla según tu estructura)
-        String rutaImagenEntrada = "imagen_prueba_1000x1000.png";
+        // Determinar operación (erosión por defecto)
+        String operacion = "erosion"; // Cambiar a "dilatacion" si se desea
+        
+        if (args.length > 1) {
+            operacion = args[1].toLowerCase();
+        }
+        
+        System.out.println("Operación morfológica: " + operacion.toUpperCase());
 
-        // Si se pasa una ruta como argumento, usarla
+        // Ruta de la imagen a procesar
+        String rutaImagenEntrada = "imagen_prueba_1000x1000.png";
+        
         if (args.length > 0) {
             rutaImagenEntrada = args[0];
-            System.out.println("Usando imagen especificada: " + rutaImagenEntrada);
         }
-
+        
         // Verificar que el archivo exista
         File archivo = new File(rutaImagenEntrada);
         if (!archivo.exists()) {
@@ -283,8 +333,9 @@ public class ProcesadorImagenes {
         // Procesar de forma SECUENCIAL
         MetricasRendimiento metricasSecuencial = new MetricasRendimiento();
         BufferedImage resultadoSecuencial = procesarSecuencial(imagenOriginal, metricasSecuencial);
-        guardarImagen(resultadoSecuencial, "resultado_secuencial.png");
-        metricasSecuencial.imprimir("SECUENCIAL");
+        // Guardar con nombre descriptivo
+        guardarImagen(resultadoSecuencial, "resultado_secuencial_" + operacion + ".png");
+        metricasSecuencial.imprimir("SECUENCIAL - " + operacion.toUpperCase());
 
         // Esperar un momento para que la memoria se estabilice
         System.out.println("\nEsperando para limpiar memoria...");
@@ -298,9 +349,10 @@ public class ProcesadorImagenes {
         // Procesar de forma PARALELA
         MetricasRendimiento metricasParalela = new MetricasRendimiento();
         BufferedImage resultadoParalelo = procesarParalelo(imagenOriginal, metricasParalela);
-        guardarImagen(resultadoParalelo, "resultado_paralelo.png");
-        metricasParalela.imprimir("PARALELO");
-
+        // Guardar con nombre descriptivo
+        guardarImagen(resultadoParalelo, "resultado_paralelo_" + operacion + ".png");
+        metricasParalela.imprimir("PARALELO - " + operacion.toUpperCase());
+        
         // Comparar resultados
         System.out.println("\n=== Comparación de Resultados ===");
         boolean sonIguales = compararImagenes(resultadoSecuencial, resultadoParalelo);
