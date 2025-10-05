@@ -13,7 +13,6 @@ public class GeneradorImagenesAleatorias {
 
     // NOMBRE FIJO DE LA IMAGEN A GENERAR
     private static final String NOMBRE_IMAGEN = "IMGPR.png";
-
     /**
      * Genera una imagen RGB aleatoria con las dimensiones especificadas
      */
