@@ -1,218 +1,197 @@
-/**
- * Representa un elemento estructurante para operaciones morfológicas
- * Contiene las posiciones relativas (offsets) respecto al píxel central
- * 
- * Proyecto 1 - Sistemas Distribuidos
- * Universidad de Talca
- */
 public class ElementoEstructurante {
-    
-    private int[][] offsets;  // Pares [dx, dy] de desplazamientos
-    private String nombre;
-    
+    private int[][] matriz;
+    private int centroX;
+    private int centroY;
+    private int caso;
+
     /**
-     * Constructor privado para crear elementos estructurantes
+     * Constructor que crea un elemento estructurante según el caso especificado
+     * @param caso Número de caso (1-6):
+     *             1 = Cruz
+     *             2 = L invertida hacia abajo
+     *             3 = L invertida
+     *             4 = Horizontal
+     *             5 = Pixel
+     *             6 = Diagonal
      */
-    private ElementoEstructurante(String nombre, int[][] offsets) {
-        this.nombre = nombre;
-        this.offsets = offsets;
+    public ElementoEstructurante(int caso) {
+        this.caso = caso;
+        inicializarElemento(caso);
     }
-    /**
-     * Elemento 0: Cruz completa (más común)
-     *   □
-     * □ ■ □
-     *   □
-     */
-    public static ElementoEstructurante ELEMENTO_0() {
-        return new ElementoEstructurante("Elemento 0 (Cruz Completa)", new int[][] {
-            {0, -1},  // Arriba
-            {-1, 0},  // Izquierda
-            {0, 0},   // Centro (píxel de referencia)
-            {1, 0},   // Derecha
-            {0, 1}    // Abajo
-        });
-    }
-    /**
-     * Elemento 1: L invertida (esquina superior izquierda)
-     * ■ □
-     * ■ □
-     */
-    public static ElementoEstructurante ELEMENTO_1() {
-        return new ElementoEstructurante("Elemento 1 (L invertida)", new int[][] {
-            {-1, 0}, // Superior izquierda
-            {0, 0},  // Superior centro (píxel de referencia)
-            {0, 1}   // Centro izquierda
-        });
-    }
-    
-    /**
-     * Elemento 2: L (esquina inferior izquierda)
-     *   □
-     * □ ■
-     */
-    public static ElementoEstructurante ELEMENTO_2() {
-        return new ElementoEstructurante("Elemento 2 (L normal)", new int[][] {
-            {0, -1},  // Superior centro
-            {-1, 0},  // Centro izquierda
-            {0, 0}    // Centro (píxel de referencia)
-        });
-    }
-    
-    /**
-     * Elemento 3: Línea horizontal de 3 píxeles
-     * □ ■ □
-     */
-    public static ElementoEstructurante ELEMENTO_3() {
-        return new ElementoEstructurante("Elemento 3 (Línea Horizontal 3x1)", new int[][] {
-            {-1, 0},  // Izquierda
-            {0, 0},   // Centro (píxel de referencia)
-            {1, 0}    // Derecha
-        });
-    }
-    
-    /**
-     * Elemento 4: Línea vertical de 2 píxeles
-     * □
-     * ■
-     */
-    public static ElementoEstructurante ELEMENTO_4() {
-        return new ElementoEstructurante("Elemento 4 (Línea Vertical 2x1)", new int[][] {
-            {0, 1},  // Arriba
-            {0, 0}    // Centro (píxel de referencia)
-        });
-    }
-    
-    /**
-     * Elemento 5: Cruz completa (más común)
-     * □   □ 
-     *   ■ 
-     * □   □
-     */
-    public static ElementoEstructurante ELEMENTO_5() {
-        return new ElementoEstructurante("Elemento 5 (Cruz Completa)", new int[][] {
-            {-1, -1},  // Arriba
-            {-1, 1},  // Izquierda
-            {0, 0},   // Centro (píxel de referencia)
-            {1, 1},   // Derecha
-            {1, -1}    // Abajo
-        });
-    }
-    
-    /**
-     * Elemento estructurante 3x3 completo (para casos especiales)
-     * □ □ □
-     * □ ■ □
-     * □ □ □
-     */
-    public static ElementoEstructurante CUADRADO_3x3() {
-        return new ElementoEstructurante("Cuadrado 3x3", new int[][] {
-            {-1, -1}, {0, -1}, {1, -1},  // Fila superior
-            {-1, 0},  {0, 0},  {1, 0},   // Fila central
-            {-1, 1},  {0, 1},  {1, 1}    // Fila inferior
-        });
-    }
-    
-    /**
-     * Obtiene todos los elementos estructurantes del proyecto
-     */
-    public static ElementoEstructurante[] obtenerTodos() {
-        return new ElementoEstructurante[] {
-            ELEMENTO_1(),
-            ELEMENTO_2(),
-            ELEMENTO_3(),
-            ELEMENTO_4(),
-            ELEMENTO_5()
-        };
-    }
-    
-    // Getters
-    public int[][] getOffsets() {
-        return offsets;
-    }
-    
-    public String getNombre() {
-        return nombre;
-    }
-    
-    public int getTamanio() {
-        return offsets.length;
-    }
-    
-    /**
-     * Verifica si una posición está dentro de los límites de la imagen
-     */
-    public boolean dentroLimites(int x, int y, int ancho, int alto) {
-        return x >= 0 && x < ancho && y >= 0 && y < alto;
-    }
-    
-    /**
-     * Visualiza el elemento estructurante (para debugging)
-     */
-    public void mostrar() {
-        System.out.println("\n" + nombre + ":");
-        
-        // Encontrar dimensiones del elemento
-        int minX = 0, maxX = 0, minY = 0, maxY = 0;
-        for (int[] offset : offsets) {
-            minX = Math.min(minX, offset[0]);
-            maxX = Math.max(maxX, offset[0]);
-            minY = Math.min(minY, offset[1]);
-            maxY = Math.max(maxY, offset[1]);
+
+    private void inicializarElemento(int caso) {
+        switch (caso) {
+            case 1: // Cruz
+                // [0,1,0]
+                // [1,{1},1]
+                // [0,1,0]
+                matriz = new int[][] {
+                        {0, 1, 0},
+                        {1, 1, 1},
+                        {0, 1, 0}
+                };
+                centroX = 1;
+                centroY = 1;
+                break;
+
+            case 2: // L invertida hacia abajo
+                // [1,{1},0]
+                // [0,1,0]
+                matriz = new int[][] {
+                        {1, 1, 0},
+                        {0, 1, 0}
+                };
+                centroX = 1;
+                centroY = 0;
+                break;
+
+            case 3: // L invertida
+                // [0,1,0]
+                // [1,{1},0]
+                matriz = new int[][] {
+                        {0, 1, 0},
+                        {1, 1, 0}
+                };
+                centroX = 1;
+                centroY = 1;
+                break;
+
+            case 4: // Horizontal
+                // [1,{1},1]
+                matriz = new int[][] {
+                        {1, 1, 1}
+                };
+                centroX = 1;
+                centroY = 0;
+                break;
+
+            case 5: // Pixel
+                // [{1}]
+                matriz = new int[][] {
+                        {1}
+                };
+                centroX = 0;
+                centroY = 0;
+                break;
+
+            case 6: // Diagonal
+                // [1,0,1]
+                // [0,{1},0]
+                // [1,0,1]
+                matriz = new int[][] {
+                        {1, 0, 1},
+                        {0, 1, 0},
+                        {1, 0, 1}
+                };
+                centroX = 1;
+                centroY = 1;
+                break;
+
+            default:
+                // Por defecto, usar pixel (caso 5)
+                matriz = new int[][] {{1}};
+                centroX = 0;
+                centroY = 0;
+                this.caso = 5;
+                System.err.println("Caso no válido (debe ser 1-6). Usando caso 5 (pixel) por defecto.");
         }
-        
-        // Crear una matriz para visualizar
-        int altura = maxY - minY + 1;
-        int anchura = maxX - minX + 1;
-        char[][] grid = new char[altura][anchura];
-        
-        // Llenar con espacios
-        for (int i = 0; i < altura; i++) {
-            for (int j = 0; j < anchura; j++) {
-                grid[i][j] = ' ';
-            }
+    }
+
+    /**
+     * Retorna el número de caso del elemento estructurante
+     */
+    public int getCaso() {
+        return caso;
+    }
+
+    /**
+     * Retorna la matriz del elemento estructurante
+     */
+    public int[][] getMatriz() {
+        return matriz;
+    }
+
+    /**
+     * Retorna el alto de la matriz
+     */
+    public int getAlto() {
+        return matriz.length;
+    }
+
+    /**
+     * Retorna el ancho de la matriz
+     */
+    public int getAncho() {
+        return matriz[0].length;
+    }
+
+    /**
+     * Retorna la coordenada X del centro
+     */
+    public int getCentroX() {
+        return centroX;
+    }
+
+    /**
+     * Retorna la coordenada Y del centro
+     */
+    public int getCentroY() {
+        return centroY;
+    }
+
+    /**
+     * Verifica si una posición del elemento estructurante está activa
+     */
+    public boolean estaActivo(int y, int x) {
+        if (y >= 0 && y < matriz.length && x >= 0 && x < matriz[0].length) {
+            return matriz[y][x] == 1;
         }
-        
-        // Marcar los puntos del elemento estructurante
-        for (int[] offset : offsets) {
-            int gridY = offset[1] - minY;
-            int gridX = offset[0] - minX;
-            
-            if (offset[0] == 0 && offset[1] == 0) {
-                grid[gridY][gridX] = '■';  // Píxel central
-            } else {
-                grid[gridY][gridX] = '□';  // Píxeles vecinos
-            }
+        return false;
+    }
+
+    /**
+     * Retorna el nombre descriptivo del caso
+     */
+    public String getNombreCaso() {
+        switch (caso) {
+            case 1: return "Cruz";
+            case 2: return "L invertida hacia abajo";
+            case 3: return "L invertida";
+            case 4: return "Horizontal";
+            case 5: return "Pixel";
+            case 6: return "Diagonal";
+            default: return "Desconocido";
         }
-        
-        // Imprimir
-        for (int i = 0; i < altura; i++) {
-            System.out.print("  ");
-            for (int j = 0; j < anchura; j++) {
-                System.out.print(grid[i][j] + " ");
+    }
+
+    /**
+     * Imprime el elemento estructurante en consola (útil para debugging)
+     */
+    public void imprimir() {
+        System.out.println("Elemento Estructurante - Caso " + caso + ": " + getNombreCaso());
+        System.out.println("Centro: (" + centroX + ", " + centroY + ")");
+        for (int y = 0; y < matriz.length; y++) {
+            for (int x = 0; x < matriz[0].length; x++) {
+                if (y == centroY && x == centroX) {
+                    System.out.print("[" + matriz[y][x] + "] ");
+                } else {
+                    System.out.print(" " + matriz[y][x] + "  ");
+                }
             }
             System.out.println();
         }
     }
-    
-    @Override
-    public String toString() {
-        return nombre + " (" + offsets.length + " píxeles)";
-    }
-    
+
     /**
-     * Método main para probar los elementos estructurantes
+     * Método estático para mostrar todos los casos disponibles
      */
-    public static void main(String[] args) {
-        System.out.println("=== Elementos Estructurantes - Proyecto 1 ===\n");
-        
-        ElementoEstructurante[] elementos = obtenerTodos();
-        
-        for (int i = 0; i < elementos.length; i++) {
-            System.out.println((i + 1) + ". " + elementos[i]);
-            elementos[i].mostrar();
-        }
-        
-        System.out.println("\n=== Elemento Adicional (3x3 completo) ===");
-        CUADRADO_3x3().mostrar();
+    public static void mostrarCasosDisponibles() {
+        System.out.println("Casos de Elementos Estructurantes disponibles:");
+        System.out.println("1 - Cruz");
+        System.out.println("2 - L invertida hacia abajo");
+        System.out.println("3 - L invertida");
+        System.out.println("4 - Horizontal");
+        System.out.println("5 - Pixel");
+        System.out.println("6 - Diagonal");
     }
 }
