@@ -12,9 +12,9 @@ public class ElementoEstructurante {
     private void inicializarElemento(int caso) {
         switch (caso) {
             case 1: // Cruz
-                // [0,1,0]
-                // [1,{1},1]
-                // [0,1,0]
+                // □ x □
+                // x X x
+                // □ x □
                 matriz = new int[][] {
                         {0, 1, 0},
                         {1, 1, 1},
@@ -25,8 +25,8 @@ public class ElementoEstructurante {
                 break;
 
             case 2: // L invertida hacia abajo
-                // [1,{1},0]
-                // [0,1,0]
+                // x X □
+                // □ x □ 
                 matriz = new int[][] {
                         {1, 1, 0},
                         {0, 1, 0}
@@ -36,8 +36,8 @@ public class ElementoEstructurante {
                 break;
 
             case 3: // L invertida
-                // [0,1,0]
-                // [1,{1},0]
+                // □ x □
+                // x X □
                 matriz = new int[][] {
                         {0, 1, 0},
                         {1, 1, 0}
@@ -47,7 +47,7 @@ public class ElementoEstructurante {
                 break;
 
             case 4: // Horizontal
-                // [1,{1},1]
+                // x X x
                 matriz = new int[][] {
                         {1, 1, 1}
                 };
@@ -56,8 +56,10 @@ public class ElementoEstructurante {
                 break;
 
             case 5: // Pixel
-                // [{1}]
+                // X
+                // x
                 matriz = new int[][] {
+                        {1},
                         {1}
                 };
                 centroX = 0;
@@ -65,9 +67,9 @@ public class ElementoEstructurante {
                 break;
 
             case 6: // Diagonal
-                // [1,0,1]
-                // [0,{1},0]
-                // [1,0,1]
+                // x □ x
+                // □ x □
+                // x □ x
                 matriz = new int[][] {
                         {1, 0, 1},
                         {0, 1, 0},
@@ -78,12 +80,12 @@ public class ElementoEstructurante {
                 break;
 
             default:
-                // Por defecto, usar pixel (caso 5)
+                // Por defecto, caso 5
                 matriz = new int[][] {{1}};
                 centroX = 0;
                 centroY = 0;
-                this.caso = 5;
-                System.err.println("Caso no válido (debe ser 1-6). Usando caso 5 (pixel) por defecto.");
+                this.caso = 1;
+                System.err.println("Caso no válido (debe ser 1-6). Usando caso 1 (cruz) por defecto.");
         }
     }
 
