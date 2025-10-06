@@ -51,7 +51,6 @@ public class ProcesarSecuencial {
 
         long tiempoInicio = System.currentTimeMillis();
 
-        // Crear imagen resultado con las mismas dimensiones
         imagenResultado = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_RGB);
 
         // Recorrer cada píxel de la imagen

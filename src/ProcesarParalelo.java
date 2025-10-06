@@ -36,7 +36,6 @@ public class ProcesarParalelo extends ProcesarSecuencial {
 
         long tiempoInicio = System.currentTimeMillis();
 
-        // Crear imagen resultado
         BufferedImage imagenResultado = new BufferedImage(
             getAncho(), getAlto(), BufferedImage.TYPE_INT_RGB
         );
@@ -161,7 +160,7 @@ public class ProcesarParalelo extends ProcesarSecuencial {
     /**
      * Setter para la imagen resultante (necesario para el procesamiento paralelo)
      */
-    private void setImagenResultado(BufferedImage imagen) {
+    public void setImagenResultado(BufferedImage imagen) {
         // Usar reflexión o agregar este método en ProcesarSecuencial
         try {
             java.lang.reflect.Field field = ProcesarSecuencial.class.getDeclaredField("imagenResultado");
