@@ -86,41 +86,104 @@ public class ProcesarSecuencial {
 
     /**
      * Aplica la operación de EROSIÓN en un píxel específico
-     * TODO: Tu compañero debe implementar este método
+     * La erosión toma el MÍNIMO valor de cada canal (R, G, B) en la vecindad
+     * definida por el elemento estructurante
      *
      * @param x Coordenada X del píxel central
      * @param y Coordenada Y del píxel central
      * @param elemento Elemento estructurante
-     * @return Valor RGB del píxel resultante (debe ser el MÍNIMO de los valores del elemento estructurante)
+     * @return Valor RGB del píxel resultante (mínimo de los valores)
      */
     private int aplicarErosion(int x, int y, ElementoEstructurante elemento) {
-        // TODO: Implementar erosión
-        // 1. Obtener los valores R, G, B mínimos de los píxeles cubiertos por el elemento estructurante
-        // 2. Retornar el color RGB con esos valores mínimos
+        // Inicializar con valores máximos (255) para encontrar el mínimo
+        int minR = 255;
+        int minG = 255;
+        int minB = 255;
 
-        // PISTA: Debes recorrer la matriz del elemento estructurante
-        // y obtener el mínimo valor de R, G, B por separado
+        // Obtener dimensiones y centro del elemento estructurante
+        int alturaElem = elemento.getAlto();
+        int anchoElem = elemento.getAncho();
+        int centroX = elemento.getCentroX();
+        int centroY = elemento.getCentroY();
 
-        return imagenOriginal.getRGB(x, y); // Placeholder - CAMBIAR
+        // Recorrer el elemento estructurante
+        for (int ey = 0; ey < alturaElem; ey++) {
+            for (int ex = 0; ex < anchoElem; ex++) {
+                // Solo procesar si el elemento está activo (valor = 1)
+                if (elemento.estaActivo(ey, ex)) {
+                    // Calcular la posición correspondiente en la imagen
+                    int imgX = x + (ex - centroX);
+                    int imgY = y + (ey - centroY);
+
+                    // Obtener el píxel de forma segura (maneja bordes)
+                    int rgb = obtenerPixelSeguro(imgX, imgY);
+
+                    // Extraer componentes RGB
+                    int r = obtenerRojo(rgb);
+                    int g = obtenerVerde(rgb);
+                    int b = obtenerAzul(rgb);
+
+                    // Encontrar el MÍNIMO de cada canal
+                    minR = Math.min(minR, r);
+                    minG = Math.min(minG, g);
+                    minB = Math.min(minB, b);
+                }
+            }
+        }
+
+        // Combinar los valores mínimos en un color RGB
+        return combinarRGB(minR, minG, minB);
     }
 
     /**
      * Aplica la operación de DILATACIÓN en un píxel específico
-     * TODO: Tu compañero debe implementar este método
+     * La dilatación toma el MÁXIMO valor de cada canal (R, G, B) en la vecindad
+     * definida por el elemento estructurante
      *
      * @param x Coordenada X del píxel central
      * @param y Coordenada Y del píxel central
      * @param elemento Elemento estructurante
-     * @return Valor RGB del píxel resultante (debe ser el MÁXIMO de los valores del elemento estructurante)
+     * @return Valor RGB del píxel resultante (máximo de los valores)
      */
     private int aplicarDilatacion(int x, int y, ElementoEstructurante elemento) {
-        // TODO: Implementar dilatación
-        // 1. Obtener los valores R, G, B máximos de los píxeles cubiertos por el elemento estructurante
-        // 2. Retornar el color RGB con esos valores máximos
+        // Inicializar con valores mínimos (0) para encontrar el máximo
+        int maxR = 0;
+        int maxG = 0;
+        int maxB = 0;
 
-        // PISTA: Similar a erosión pero buscando el MÁXIMO
+        // Obtener dimensiones y centro del elemento estructurante
+        int alturaElem = elemento.getAlto();
+        int anchoElem = elemento.getAncho();
+        int centroX = elemento.getCentroX();
+        int centroY = elemento.getCentroY();
 
-        return imagenOriginal.getRGB(x, y); // Placeholder - CAMBIAR
+        // Recorrer el elemento estructurante
+        for (int ey = 0; ey < alturaElem; ey++) {
+            for (int ex = 0; ex < anchoElem; ex++) {
+                // Solo procesar si el elemento está activo (valor = 1)
+                if (elemento.estaActivo(ey, ex)) {
+                    // Calcular la posición correspondiente en la imagen
+                    int imgX = x + (ex - centroX);
+                    int imgY = y + (ey - centroY);
+
+                    // Obtener el píxel de forma segura (maneja bordes)
+                    int rgb = obtenerPixelSeguro(imgX, imgY);
+
+                    // Extraer componentes RGB
+                    int r = obtenerRojo(rgb);
+                    int g = obtenerVerde(rgb);
+                    int b = obtenerAzul(rgb);
+
+                    // Encontrar el MÁXIMO de cada canal
+                    maxR = Math.max(maxR, r);
+                    maxG = Math.max(maxG, g);
+                    maxB = Math.max(maxB, b);
+                }
+            }
+        }
+
+        // Combinar los valores máximos en un color RGB
+        return combinarRGB(maxR, maxG, maxB);
     }
 
     /**
@@ -206,5 +269,12 @@ public class ProcesarSecuencial {
      */
     public int getAlto() {
         return alto;
+    }
+
+    /**
+     * Establece la imagen resultante (usado por ProcesarParalelo)
+     */
+    protected void setImagenResultado(BufferedImage imagen) {
+        this.imagenResultado = imagen;
     }
 }
