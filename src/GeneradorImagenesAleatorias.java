@@ -4,34 +4,26 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-/**
- * Generador de imágenes PNG aleatorias en formato RGB
- * Para el Proyecto 1 - Sistemas Distribuidos
- * Universidad de Talca
- */
 public class GeneradorImagenesAleatorias {
 
     // NOMBRE FIJO DE LA IMAGEN A GENERAR
     private static final String NOMBRE_IMAGEN = "IMGPR.png";
-    /**
-     * Genera una imagen RGB aleatoria con las dimensiones especificadas
-     */
+    //genera una imagen de ruido aleatorio
     public static void generarImagen(int ancho, int alto, String tipoNoise) {
         long tiempoInicio = System.currentTimeMillis();
-
         System.out.println("Generando imagen de " + ancho + "x" + alto + " píxeles...");
         System.out.println("Tipo de ruido: " + tipoNoise);
         System.out.println("Nombre del archivo: " + NOMBRE_IMAGEN);
 
-        BufferedImage imagen = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_RGB);
+        BufferedImage imagen = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_RGB);// Crear imagen en RGB
         Random random = new Random();
 
+        //se recorre cada pixel de la imagen
         for (int y = 0; y < alto; y++) {
             for (int x = 0; x < ancho; x++) {
                 int rgb = generarPixel(x, y, ancho, alto, tipoNoise, random);
                 imagen.setRGB(x, y, rgb);
             }
-
             if (y % (alto / 10) == 0 && y > 0) {
                 int porcentaje = (y * 100) / alto;
                 System.out.println("Progreso: " + porcentaje + "%");
@@ -56,7 +48,8 @@ public class GeneradorImagenesAleatorias {
             e.printStackTrace();
         }
     }
-
+    // genera el color de cada pixel segun el tipo de ruido
+    //hay 5 tipos de ruido: random, gradiente, patrones, mixto y grises
     private static int generarPixel(int x, int y, int ancho, int alto, String tipo, Random random) {
         int r, g, b;
 

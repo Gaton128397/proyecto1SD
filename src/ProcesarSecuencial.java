@@ -3,10 +3,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Clase para procesar imágenes de forma secuencial
- * Aplica operaciones de erosión y dilatación usando elementos estructurantes
- */
+
 public class ProcesarSecuencial {
 
     private BufferedImage imagenOriginal;
@@ -14,21 +11,15 @@ public class ProcesarSecuencial {
     private int ancho;
     private int alto;
 
-    /**
-     * Constructor que carga la imagen a procesar
-     * @param rutaImagen Ruta de la imagen a procesar
-     */
+
     public ProcesarSecuencial(String rutaImagen) throws IOException {
         cargarImagen(rutaImagen);
     }
 
-    /**
-     * Carga la imagen desde el archivo
-     */
     private void cargarImagen(String rutaImagen) throws IOException {
         File archivoImagen = new File(rutaImagen);
         if (!archivoImagen.exists()) {
-            throw new IOException("La imagen " + rutaImagen + " no existe.");
+            throw new IOException("La imagen " + rutaImagen + " no existe."); //si la imagen no existe lanza error
         }
 
         imagenOriginal = ImageIO.read(archivoImagen);
@@ -37,13 +28,7 @@ public class ProcesarSecuencial {
 
         System.out.println("Imagen cargada: " + ancho + "x" + alto + " píxeles");
     }
-
-    /**
-     * Procesa la imagen aplicando la operación especificada
-     * @param operacion Tipo de operación (EROSION o DILATACION)
-     * @param elemento Elemento estructurante a aplicar
-     * @return Tiempo de ejecución en milisegundos
-     */
+    //procesa la imagen de forma secuencial aplicando erosion o dilatacion
     public long procesar(Operacion operacion, ElementoEstructurante elemento) {
         System.out.println("\n=== Procesamiento Secuencial ===");
         System.out.println("Operación: " + operacion);
@@ -82,17 +67,7 @@ public class ProcesarSecuencial {
 
         return tiempoTotal;
     }
-
-    /**
-     * Aplica la operación de EROSIÓN en un píxel específico
-     * La erosión toma el MÍNIMO valor de cada canal (R, G, B) en la vecindad
-     * definida por el elemento estructurante
-     *
-     * @param x Coordenada X del píxel central
-     * @param y Coordenada Y del píxel central
-     * @param elemento Elemento estructurante
-     * @return Valor RGB del píxel resultante (mínimo de los valores)
-     */
+    //aplica la erosion a un pixel segun el elemento estructurante, se comienza con el valor maximo y se busca el minimo
     private int aplicarErosion(int x, int y, ElementoEstructurante elemento) {
         // Inicializar con valores máximos (255) para encontrar el mínimo
         int minR = 255;
@@ -133,17 +108,7 @@ public class ProcesarSecuencial {
         // Combinar los valores mínimos en un color RGB
         return combinarRGB(minR, minG, minB);
     }
-
-    /**
-     * Aplica la operación de DILATACIÓN en un píxel específico
-     * La dilatación toma el MÁXIMO valor de cada canal (R, G, B) en la vecindad
-     * definida por el elemento estructurante
-     *
-     * @param x Coordenada X del píxel central
-     * @param y Coordenada Y del píxel central
-     * @param elemento Elemento estructurante
-     * @return Valor RGB del píxel resultante (máximo de los valores)
-     */
+    //aplica la dilatacion a un pixel segun el elemento estructurante, se comienza con el valor minimo y se busca el maximo
     private int aplicarDilatacion(int x, int y, ElementoEstructurante elemento) {
         // Inicializar con valores mínimos (0) para encontrar el máximo
         int maxR = 0;
@@ -184,13 +149,7 @@ public class ProcesarSecuencial {
         // Combinar los valores máximos en un color RGB
         return combinarRGB(maxR, maxG, maxB);
     }
-
-    /**
-     * Método auxiliar para obtener un píxel de forma segura (maneja bordes)
-     * @param x Coordenada X
-     * @param y Coordenada Y
-     * @return Valor RGB del píxel, o negro (0) si está fuera de límites
-     */
+    //obtiene el pixel de la imagen, si esta fuera de los limites devuelve un color negro para evitar cualquer error
     protected int obtenerPixelSeguro(int x, int y) {
         if (x >= 0 && x < ancho && y >= 0 && y < alto) {
             return imagenOriginal.getRGB(x, y);
@@ -198,38 +157,28 @@ public class ProcesarSecuencial {
         return 0; // Negro para píxeles fuera de la imagen
     }
 
-    /**
-     * Extrae el componente Rojo de un color RGB
-     */
+    //obtener los colores dentro del espectro correspodiente
+
     protected int obtenerRojo(int rgb) {
         return (rgb >> 16) & 0xFF;
     }
 
-    /**
-     * Extrae el componente Verde de un color RGB
-     */
+
     protected int obtenerVerde(int rgb) {
         return (rgb >> 8) & 0xFF;
     }
 
-    /**
-     * Extrae el componente Azul de un color RGB
-     */
+
     protected int obtenerAzul(int rgb) {
         return rgb & 0xFF;
     }
 
-    /**
-     * Combina componentes R, G, B en un valor RGB
-     */
+
     protected int combinarRGB(int r, int g, int b) {
         return (r << 16) | (g << 8) | b;
     }
 
-    /**
-     * Guarda la imagen resultante en un archivo
-     * @param nombreArchivo Nombre del archivo de salida
-     */
+    //donde se guardara la imagen
     public void guardarImagen(String nombreArchivo) throws IOException {
         if (imagenResultado == null) {
             throw new IOException("No hay imagen procesada para guardar.");
@@ -242,37 +191,24 @@ public class ProcesarSecuencial {
         System.out.println("Tamaño del archivo: " + (archivoSalida.length() / 1024) + " KB");
     }
 
-    /**
-     * Obtiene la imagen original
-     */
     public BufferedImage getImagenOriginal() {
         return imagenOriginal;
     }
 
-    /**
-     * Obtiene la imagen resultante
-     */
+
     public BufferedImage getImagenResultado() {
         return imagenResultado;
     }
 
-    /**
-     * Obtiene el ancho de la imagen
-     */
+
     public int getAncho() {
         return ancho;
     }
 
-    /**
-     * Obtiene el alto de la imagen
-     */
     public int getAlto() {
         return alto;
     }
 
-    /**
-     * Establece la imagen resultante (usado por ProcesarParalelo)
-     */
     protected void setImagenResultado(BufferedImage imagen) {
         this.imagenResultado = imagen;
     }

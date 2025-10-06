@@ -4,16 +4,6 @@ public class ElementoEstructurante {
     private int centroY;
     private int caso;
 
-    /**
-     * Constructor que crea un elemento estructurante según el caso especificado
-     * @param caso Número de caso (1-6):
-     *             1 = Cruz
-     *             2 = L invertida hacia abajo
-     *             3 = L invertida
-     *             4 = Horizontal
-     *             5 = Pixel
-     *             6 = Diagonal
-     */
     public ElementoEstructurante(int caso) {
         this.caso = caso;
         inicializarElemento(caso);
@@ -97,51 +87,30 @@ public class ElementoEstructurante {
         }
     }
 
-    /**
-     * Retorna el número de caso del elemento estructurante
-     */
     public int getCaso() {
         return caso;
     }
 
-    /**
-     * Retorna la matriz del elemento estructurante
-     */
     public int[][] getMatriz() {
         return matriz;
     }
 
-    /**
-     * Retorna el alto de la matriz
-     */
     public int getAlto() {
         return matriz.length;
     }
 
-    /**
-     * Retorna el ancho de la matriz
-     */
     public int getAncho() {
         return matriz[0].length;
     }
 
-    /**
-     * Retorna la coordenada X del centro
-     */
     public int getCentroX() {
         return centroX;
     }
 
-    /**
-     * Retorna la coordenada Y del centro
-     */
     public int getCentroY() {
         return centroY;
     }
 
-    /**
-     * Verifica si una posición del elemento estructurante está activa
-     */
     public boolean estaActivo(int y, int x) {
         if (y >= 0 && y < matriz.length && x >= 0 && x < matriz[0].length) {
             return matriz[y][x] == 1;
@@ -149,9 +118,6 @@ public class ElementoEstructurante {
         return false;
     }
 
-    /**
-     * Retorna el nombre descriptivo del caso
-     */
     public String getNombreCaso() {
         switch (caso) {
             case 1: return "Cruz";
@@ -164,9 +130,6 @@ public class ElementoEstructurante {
         }
     }
 
-    /**
-     * Imprime el elemento estructurante en consola (útil para debugging)
-     */
     public void imprimir() {
         System.out.println("Elemento Estructurante - Caso " + caso + ": " + getNombreCaso());
         System.out.println("Centro: (" + centroX + ", " + centroY + ")");
@@ -182,9 +145,6 @@ public class ElementoEstructurante {
         }
     }
 
-    /**
-     * Método estático para mostrar todos los casos disponibles
-     */
     public static void mostrarCasosDisponibles() {
         System.out.println("Casos de Elementos Estructurantes disponibles:");
         System.out.println("1 - Cruz");

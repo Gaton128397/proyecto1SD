@@ -1,21 +1,27 @@
+import java.io.File;
 import java.io.IOException;
 
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("=== Procesador de Imágenes Morfológicas ===");
-        System.out.println("Proyecto 1 - Sistemas Distribuidos");
-        System.out.println("Universidad de Talca\n");
 
         // Configuración por defecto
         String rutaImagen = "IMGPR.png";
         Operacion operacion = Operacion.EROSION;
         int caso = 1;
         int numHilos = Runtime.getRuntime().availableProcessors();
-        String modo = "ambos"; // "secuencial", "paralelo", o "ambos"
-
+        String modo = "ambos";
+        // Verificar que la imagen existe
+        File archivoImagen = new File(rutaImagen);
+        if (!archivoImagen.exists()) {
+            System.err.println("ERROR: No se encontró la imagen " + rutaImagen);
+            System.err.println("\nDebe ejecutar primero GeneradorImagenesAleatorias para crear la imagen.");
+            System.err.println("\nEjemplos:");
+            System.err.println("  java GeneradorImagenesAleatorias");
+            System.err.println("  java GeneradorImagenesAleatorias 5000 5000 mixto");
+            return; // ← SE DETIENE AQUÍ
+        }
         // Permitir configuración por argumentos
-        // Uso: java ProcesadorImagenes <operacion> <caso> <numHilos> <modo>
         if (args.length >= 1) operacion = Operacion.valueOf(args[0].toUpperCase());
         if (args.length >= 2) caso = Integer.parseInt(args[1]);
         if (args.length >= 3) numHilos = Integer.parseInt(args[2]);
@@ -39,33 +45,27 @@ public class Main {
         System.out.println("\n" + "=".repeat(50) + "\n");
 
         try {
-            // Crear elemento estructurante
             ElementoEstructurante elemento = new ElementoEstructurante(caso);
             elemento.imprimir();
             System.out.println();
-
             long tiempoSecuencial = 0;
             long tiempoParalelo = 0;
 
-            // PROCESAMIENTO SECUENCIAL
             if (modo.equals("secuencial") || modo.equals("ambos")) {
                 ProcesarSecuencial procSecuencial = new ProcesarSecuencial(rutaImagen);
                 tiempoSecuencial = procSecuencial.procesar(operacion, elemento);
                 procSecuencial.guardarImagen("resultado_secuencial_" + operacion.toString().toLowerCase() + "_caso" + caso + ".png");
             }
 
-            // PROCESAMIENTO PARALELO
             if (modo.equals("paralelo") || modo.equals("ambos")) {
                 ProcesarParalelo procParalelo = new ProcesarParalelo(rutaImagen, numHilos);
                 tiempoParalelo = procParalelo.procesarParalelo(operacion, elemento);
                 procParalelo.guardarImagen("resultado_paralelo_" + operacion.toString().toLowerCase() + "_caso" + caso + ".png");
             }
 
-            // COMPARACIÓN (solo si se ejecutaron ambos)
             if (modo.equals("ambos")) {
                 System.out.println("\n" + "=".repeat(50));
-                System.out.println("COMPARACIÓN DE RENDIMIENTO");
-                System.out.println("=".repeat(50));
+                System.out.println("Resultados Comparativos:");
                 System.out.println("Tiempo Secuencial: " + tiempoSecuencial + " ms");
                 System.out.println("Tiempo Paralelo:   " + tiempoParalelo + " ms");
                 double speedup = (double) tiempoSecuencial / tiempoParalelo;
@@ -86,16 +86,16 @@ public class Main {
     }
 
     private static void mostrarAyuda() {
-        System.out.println("\nUso: java ProcesadorImagenes <operacion> <caso> <numHilos> <modo>");
+        System.out.println("\nUso: java Main <operacion> <caso> <numHilos> <modo>");
         System.out.println("\nParámetros:");
         System.out.println("  <operacion>  : EROSION o DILATACION (por defecto: EROSION)");
         System.out.println("  <caso>       : 1-6 (por defecto: 1)");
         System.out.println("  <numHilos>   : Número de hilos (por defecto: procesadores disponibles)");
         System.out.println("  <modo>       : secuencial, paralelo, o ambos (por defecto: ambos)");
         System.out.println("\nEjemplos:");
-        System.out.println("  java ProcesadorImagenes EROSION 1 4 secuencial");
-        System.out.println("  java ProcesadorImagenes DILATACION 3 8 paralelo");
-        System.out.println("  java ProcesadorImagenes EROSION 2 4 ambos");
+        System.out.println("  java Main EROSION 1 4 secuencial");
+        System.out.println("  java Main DILATACION 3 8 paralelo");
+        System.out.println("  java Main EROSION 2 4 ambos");
         System.out.println("\nCasos de Elementos Estructurantes:");
         ElementoEstructurante.mostrarCasosDisponibles();
     }

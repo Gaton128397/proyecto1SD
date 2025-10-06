@@ -1,33 +1,31 @@
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CountDownLatch; //para sincronización de hilos
+import java.util.concurrent.ExecutorService;//para manejar el pool de hilos
+import java.util.concurrent.Executors;//para crear el pool de hilos y iniciar tareas
 
-/**
- * Clase para procesar imágenes de forma paralela usando múltiples hilos
- * Hereda de ProcesarSecuencial para reutilizar métodos auxiliares
- */
 public class ProcesarParalelo extends ProcesarSecuencial {
 
-    private int numHilos;
+    public int numHilos;
 
-    /**
-     * Constructor que carga la imagen y configura el número de hilos
-     * @param rutaImagen Ruta de la imagen a procesar
-     * @param numHilos Número de hilos a utilizar
-     */
     public ProcesarParalelo(String rutaImagen, int numHilos) throws IOException {
         super(rutaImagen);
         this.numHilos = numHilos;
     }
-
-    /**
-     * Procesa la imagen en paralelo dividiendo el trabajo entre múltiples hilos
-     * @param operacion Tipo de operación (EROSION o DILATACION)
-     * @param elemento Elemento estructurante a aplicar
-     * @return Tiempo de ejecución en milisegundos
-     */
+    //procesa la imagen en paralelo dividiendola en franjas horizontales
+    /*
+        Ejemplo del programa:
+        ------------
+        |          |
+        |  Hilo 0  |  <- procesa filas 0 a N/numHilos
+        |          |
+        ------------
+        |          |
+        |  Hilo 1  |  <- procesa filas N/numHilos a
+        |          |
+        ------------
+        etc...
+    */
     public long procesarParalelo(Operacion operacion, ElementoEstructurante elemento) {
         System.out.println("\n=== Procesamiento Paralelo ===");
         System.out.println("Operación: " + operacion);
@@ -75,14 +73,14 @@ public class ProcesarParalelo extends ProcesarSecuencial {
                     System.out.println("Hilo " + hiloNum + " completado");
 
                 } finally {
-                    latch.countDown();
+                    latch.countDown(); // Indicar que este hilo ha terminado
                 }
             });
         }
 
         try {
             // Esperar a que todos los hilos terminen
-            latch.await();
+            latch.await(); // Espera activa para que todos los hilos terminen
         } catch (InterruptedException e) {
             System.err.println("Error esperando hilos: " + e.getMessage());
         } finally {
@@ -100,11 +98,8 @@ public class ProcesarParalelo extends ProcesarSecuencial {
 
         return tiempoTotal;
     }
-
-    /**
-     * Versión thread-safe de aplicarErosion
-     */
-    private int aplicarErosionParalelo(int x, int y, ElementoEstructurante elemento) {
+    //se usa el minimo de los pixeles cubiertos por el elemento estructurante
+    public int aplicarErosionParalelo(int x, int y, ElementoEstructurante elemento) {
         int minR = 255, minG = 255, minB = 255;
 
         int alturaElem = elemento.getAlto();
@@ -129,10 +124,8 @@ public class ProcesarParalelo extends ProcesarSecuencial {
         return combinarRGB(minR, minG, minB);
     }
 
-    /**
-     * Versión thread-safe de aplicarDilatacion
-     */
-    private int aplicarDilatacionParalelo(int x, int y, ElementoEstructurante elemento) {
+    //se usa el maximo de los pixeles cubiertos por el elemento estructurante
+    public int aplicarDilatacionParalelo(int x, int y, ElementoEstructurante elemento) {
         int maxR = 0, maxG = 0, maxB = 0;
 
         int alturaElem = elemento.getAlto();
@@ -156,12 +149,8 @@ public class ProcesarParalelo extends ProcesarSecuencial {
 
         return combinarRGB(maxR, maxG, maxB);
     }
-
-    /**
-     * Setter para la imagen resultante (necesario para el procesamiento paralelo)
-     */
+    //metodo para establecer la imagen resultado usando reflexion
     public void setImagenResultado(BufferedImage imagen) {
-        // Usar reflexión o agregar este método en ProcesarSecuencial
         try {
             java.lang.reflect.Field field = ProcesarSecuencial.class.getDeclaredField("imagenResultado");
             field.setAccessible(true);
