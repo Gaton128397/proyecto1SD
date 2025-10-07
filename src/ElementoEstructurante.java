@@ -80,7 +80,7 @@ public class ElementoEstructurante {
                 break;
 
             default:
-                // Por defecto, caso 5
+                // Por defecto, caso 1
                 matriz = new int[][] {{1}};
                 centroX = 0;
                 centroY = 0;
